@@ -1,0 +1,15 @@
+{
+  "name": "jskeys",
+  "version": "1.0.0",
+  "description": "Simple key manager for js",
+  "main": "jskeys.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Thomas Pyle",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "read": "^1.0.7"
+  }
+}
