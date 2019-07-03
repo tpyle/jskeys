@@ -4,7 +4,7 @@ const path = require('path');
 const zlib = require('zlib');
 const Readable = require('stream').Readable;
 
-const AppendInitVect = require('./appendInitVect');
+const AppendInitVect = require('./AppendInitVect');
 const getCipherKey = require('./getCipherKey');
 
 function encrypt({ string, file, password }, cb) {

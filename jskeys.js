@@ -21,7 +21,9 @@ async function end(internal_dict, start) {
 		if ( err ) {
 		    throw err;
 		}
-		session.putFile(data);
+		if ( config.token_file ) {
+		    session.putFile(data);
+		}
 		console.error("Updating remote file");
 	    });
 	});
@@ -120,34 +122,20 @@ const argv = require('./commandArgs')([{ name: 'add',
 				       { name: 'change',
 					 describe: 'Change the password used for encryption' }]);
 
-fs.mkdir(`${process.env.HOME}/.jskeys`,{recursive: true},async (err)=>{
-    if ( err ) {
-	console.error ( `Failed to create folder ${process.env.HOME}/.jskeys` );
-	process.exit(1);
-    }
-    process.chdir(`${process.env.HOME}/.jskeys`);
-    try {
-	config = fs.readFileSync(`config.json`);
-    } catch ( e ) {
-	console.error(`No config file found config.json`);
-	process.exit(1);
-    }
-    try {
-	config = JSON.parse(config);
-    } catch ( e ) {
-	console.error("Failed to parse the config file");
-	process.exit(1);
-    }
-    let token = fs.readFileSync(config.token_file);
-    session = await keyServ(token, config.key_server);
-    let servdata = await session.getFile();
-    let currdata = fs.readFileSync(config.keys_file);
-    if ( servdata != currdata ) {
-	fs.writeFileSync(config.keys_file,servdata);
-    };
+async function fstart() {
+    config = await require('./config')();
     config.password = await getPass();
+    if ( config.token_file ) {
+	let token = fs.readFileSync(config.token_file);
+	session = await keyServ(token, config.key_server);
+	let servdata = await session.getFile();
+	let currdata = fs.readFileSync(config.keys_file);
+	if ( servdata != currdata ) {
+	    fs.writeFileSync(config.keys_file,servdata);
+	}
+    }
     init();
-});
+};
 
 async function handler(data) {
     let internal_dict = data ? JSON.parse(data) : {};
@@ -277,12 +265,30 @@ async function handler(data) {
     end(internal_dict, start, argv);
 }
 
-async function init() {
-    fs.stat(config.keys_file,err=>{
+function init() {
+    fs.stat(config.keys_file,async err=>{
 	if ( err ) {
 	    handler();
 	} else {
-	    decrypt({file: config.keys_file, password: config.password}, handler);
+	    let attempts = 0;
+	    while ( attempts < 3 ) {
+		if ( attempts > 0 ) {
+		    console.error("Failed to decrypt the password. Please try again.");
+		    config.password = await getPass();
+		}
+		try {
+		    let result = await decrypt(config.keys_file, config.password);
+		    handler(result);
+		    attempts = 100;
+		} catch ( e ) {
+		    attempts++;
+		}
+	    }
+	    if ( attempts == 3 ) {
+		console.error("Too many failed attempts.");
+	    }
 	}
     });
 }
+
+fstart().catch(console.error)

@@ -6,7 +6,19 @@ const WritableString = require('./WritableString');
 
 const getCipherKey = require('./getCipherKey');
 
-function decrypt({ file, password }, cb) {
+function decrypt(file_name, password) {
+    return new Promise((resolve,reject)=>{
+	_decrypt({file: file_name, password},(err,output)=>{
+	    if ( err ) {
+		reject(err);
+	    } else {
+		resolve(output);
+	    }
+	})
+    });
+}
+
+function _decrypt({ file, password }, cb) {
     // First, get the iv from the file
     const readInitVect = fs.createReadStream(file, { end: 15 });
 
@@ -23,13 +35,13 @@ function decrypt({ file, password }, cb) {
 		const unzip = zlib.createUnzip();
 		const writeStream = new WritableString();//fs.createWriteStream(file + '.unenc');
 
-		readStream
-			.pipe(decipher)
-			.pipe(unzip)
-			.pipe(writeStream);
+	readStream.on('error',cb)
+			.pipe(decipher).on('error',cb)
+			.pipe(unzip).on('error',cb)
+			.pipe(writeStream).on('error',cb);
 
 		writeStream.on('finish', ()=>{
-			cb(writeStream.getString());
+		    cb(undefined, writeStream.getString());
 		})
     });
 }
