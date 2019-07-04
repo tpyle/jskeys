@@ -236,7 +236,7 @@ async function handler(data) {
 		    len = Math.max(len,arg.length);
 		});
 		len++;
-		Object.entries(internal_dict).forEach(arg=>{
+		Object.entries(internal_dict).sort().forEach(arg=>{
 		    console.log(`${arg[0]}${' '.repeat(len - arg[0].length)}${arg[1]}`);
 		});
 	    }
