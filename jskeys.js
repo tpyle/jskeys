@@ -77,7 +77,10 @@ const argv = require('./commandArgs')([{ name: 'add',
 					 positionals: [{ name: 'location',
 							 describe: 'The location to create a password for',
 							 value: String }],
-					 args: [{ name: 'n <numbers>',
+					 args: [{ name: 'x',
+						  describe: 'Don\'t store this password, or attach a key to it. You do need to give a fake location though.',
+						  optional: true },
+						{ name: 'n <numbers>',
 						  describe: 'The amount of numbers to use in the password',
 						  value: Number,
 						  default: 4 },
@@ -123,6 +126,11 @@ const argv = require('./commandArgs')([{ name: 'add',
 					 describe: 'Change the password used for encryption' }]);
 
 async function fstart() {
+    if ( argv.mode == 'create' && argv.x ) {
+	let { location, numbers, specials, uppercases, length, speciallist } = argv;
+	console.log(genPass({ length, number: numbers, uppercase: uppercases, special: specials, specials: speciallist }));
+	return;
+    }
     config = await require('./config')();
     config.password = await getPass();
     if ( config.token_file ) {
