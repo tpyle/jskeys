@@ -1,8 +1,9 @@
 const fs = require ( 'fs' );
+const homedir = require('os').homedir();
 
 function getConfig() {
     return new Promise((resolve,reject)=>{
-	fs.mkdir(`${process.env.HOME}/.jskeys`,{recursive: true},(err)=>{
+	fs.mkdir(`${homedir}/.jskeys`,{recursive: true},(err)=>{
 	    if ( err ) {
 		reject(`Failed to create folder ${process.env.HOME}/.jskeys`);
 	    }
