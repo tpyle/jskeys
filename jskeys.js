@@ -1,4 +1,4 @@
-#!/usr/local/bin/node
+#!/usr/bin/env node
 const encrypt = require('./encrypt');
 const decrypt = require('./decrypt');
 const genPass = require('./genPass');

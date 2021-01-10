@@ -8,7 +8,7 @@ async function getSessionId() {
     try {
 	res = await axios.post(`${config.key_server}/token`, config.token, { headers: { 'Content-Type': 'text/plain' } })
     } catch ( e ) {
-	throw e.response.data.error;
+	    throw e; //.response.data.error;
     }
     config.headers = { Cookie: res.headers["set-cookie"][0] };
 }
