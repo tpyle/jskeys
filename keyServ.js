@@ -6,9 +6,12 @@ async function getSessionId() {
     config.token = config.token.toString().trim();
     let res = undefined;
     try {
-	res = await axios.post(`${config.key_server}/token`, config.token, { headers: { 'Content-Type': 'text/plain' } })
+	    res = await axios.post(`${config.key_server}/token`, config.token, { headers: { 'Content-Type': 'text/plain' } })
     } catch ( e ) {
-	    throw e; //.response.data.error;
+        if (e.message) {
+            console.error(e.message);
+        }
+	    throw e;
     }
     config.headers = { Cookie: res.headers["set-cookie"][0] };
 }
@@ -16,9 +19,12 @@ async function getSessionId() {
 async function getFile() {
     let res = undefined;
     try {
-	res = await axios.get(config.key_server, { headers: config.headers, responseType: 'arraybuffer', responseEncoding: 'binary' });
+	    res = await axios.get(config.key_server, { headers: config.headers, responseType: 'arraybuffer', responseEncoding: 'binary' });
     } catch ( e ) {
-	throw e;
+        if (e.message) {
+            console.error(e.message);
+        }
+	    throw e;
     }
     return res.data;
 }
@@ -28,7 +34,7 @@ async function putFile(data) {
     try {
 	res = await axios.put(config.key_server, data, { headers: config.headers });
     } catch ( e ) {
-	throw e;
+	    throw e;
     }
 }
 
